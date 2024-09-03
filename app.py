@@ -13,4 +13,4 @@ def index():
 register_blueprints(app)  # 블루프린트 등록
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True, host='0.0.0.0')
