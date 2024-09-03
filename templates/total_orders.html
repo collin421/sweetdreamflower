@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}
+주문 수량 통계
+{% endblock %}
+
+{% block content %}
+<style>
+    .chart-container {
+        background-color: #fff; /* 배경색 설정 */
+        box-shadow: 0px 0px 10px #ccc; /* 그림자 설정 */
+        padding: 15px; /* 패딩 설정 */
+        margin-top: 20px; /* 상단 마진 설정 */
+    }
+    .header-area h2 {
+        margin-top: 20px; /* 제목 상단 마진 설정 */
+    }
+</style>
+
+<div class="container" style="min-height: 100vh; padding-top: 80px; padding-bottom: 30px; background-color: #f8f9fa;">
+    <div class="row">
+        <div class="col-md-12">
+            <div style="margin-bottom: 10px;">
+                <h2 style="font-size: 24px; color: #333; margin-bottom: 0;">주간 주문 수량</h2>
+            </div>
+            <div class="header-area" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                <div>
+                    <form action="" method="post" style="margin-bottom: 0;">
+                        <select name="year_week" onchange="this.form.submit()" class="form-control" style="width: auto; display: inline-block;">
+                            {% for year in years_week %}
+                            <option value="{{ year }}" {% if year == selected_year_week %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="week" onchange="this.form.submit()" class="form-control" style="width: auto; display: inline-block;">
+                            {% for week, display_week in weeks_display.items() %}
+                            <option value="{{ week }}" {% if week == selected_week %}selected{% endif %}>{{ display_week }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+            </div>
+            <canvas id="weeklyOrderChart" style="width: 100%; height: 400px;"></canvas>
+            <table class="table table-striped mt-4">
+                <thead>
+                    <tr>
+                        <th>요일</th>
+                        <th>날짜</th>
+                        <th>주문 수량</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for i in range(weekly_data.dates|length) %}
+                    <tr>
+                        <td>{{ weekly_data.dayname[i] }}</td>
+                        <td>{{ weekly_data.dates[i] }}</td>
+                        <td>{{ weekly_data.quantities[i] }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            
+            <div class="header-area" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                <div style="margin-bottom: 10px;">
+                    <h2 style="font-size: 24px; color: #333; margin-bottom: 0;">월간 주문 수량</h2>
+                </div>
+                <div>
+                    <form action="" method="post" style="margin-bottom: 0;">
+                        <select name="year_month" onchange="this.form.submit()" class="form-control" style="width: auto; display: inline-block;">
+                            {% for year in years_month %}
+                            <option value="{{ year }}" {% if year == selected_year_month %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="month" onchange="this.form.submit()" class="form-control" style="width: auto; display: inline-block;">
+                            {% for month in months %}
+                            <option value="{{ month }}" {% if month == selected_month %}selected{% endif %}>{{ month }}월</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+            </div>
+            <canvas id="monthlyOrderChart" style="width: 100%; height: 400px;"></canvas>
+            <!-- New Table for Monthly Data -->
+            <table class="table table-striped mt-4">
+                <thead>
+                    <tr>
+                        <th>날짜</th>
+                        <th>주문 수량</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for i in range(monthly_data.dates|length) %}
+                    <tr>
+                        <td>{{ monthly_data.dates[i] }}</td>
+
+                        <td>{{ monthly_data.quantities[i] }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 10px;">
+        <h2 style="font-size: 24px; color: #333; margin-bottom: 0;">기간별 주문 수량</h2>
+    </div>
+    <div class="header-area" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <form action="" method="post" style="margin-bottom: 0; display: flex; align-items: center;">
+            <input type="date" name="start_date" value="{{ selected_start_date }}" class="form-control" style="max-width: 200px; margin-right: 10px;">
+            <input type="date" name="end_date" value="{{ selected_end_date }}" class="form-control" style="max-width: 200px; margin-right: 10px;">
+            <button type="submit" class="btn btn-primary" style="padding: 5px 10px; min-width: 80px;">조회</button>
+        </form>
+    </div>
+    <canvas id="periodOrderChart" style="width: 100%; height: 400px;"></canvas>
+
+    <!-- Chart.js Script for rendering the charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var weeklyCtx = document.getElementById('weeklyOrderChart').getContext('2d');
+        var weeklyOrderChart = new Chart(weeklyCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ weekly_data.dayname|tojson }},
+                datasets: [{
+                    label: '주간 총 수량',
+                    data: {{ weekly_data.quantities|tojson }},
+                    backgroundColor: 'rgba(153, 102, 235, 0.2)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true } }, responsive: true }
+        });
+
+        var monthlyCtx = document.getElementById('monthlyOrderChart').getContext('2d');
+        var monthlyOrderChart = new Chart(monthlyCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ monthly_data.datedays|tojson }},
+                datasets: [{
+                    label: '월간 총 수량',
+                    data: {{ monthly_data.quantities|tojson }},
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true } }, responsive: true }
+        });
+
+        var periodCtx = document.getElementById('periodOrderChart').getContext('2d');
+        var periodOrderChart = new Chart(periodCtx, {
+            type: 'line',
+            data: {
+                labels: {{ period_data.dates|tojson }},
+                datasets: [{
+                    label: '기간별 총 수량',
+                    data: {{ period_data.quantities|tojson }},
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: { responsive: true }
+        });
+    </script>
+</div>
+{% endblock %}

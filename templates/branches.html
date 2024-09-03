@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}제품 페이지{% endblock %}
+
+{% block content %}
+<!-- 지점 추가 부분 -->
+<div class="container" style="min-height: 100vh; padding-top: 80px; padding-bottom: 30px; background-color: #f8f9fa;">
+    <h1 style="font-size: 24px; color: #333;">지점 추가</h1>
+    <div class="card" style="background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; padding: 20px;">
+        <form method="post">
+            <div class="form-group">
+                <label for="branches_name" style="color: #333;">지점 이름</label>
+                <input type="text" class="form-control" id="branches_name" name="branches_name" required>
+            </div>
+            <!-- <div class="form-group">
+                <label for="emails" style="color: #333;">Emails</label>
+                <input type="text" class="form-control" id="emails" name="emails" placeholder=",로 구분해서 이메일을 여러개 추가할 수 있음" required>
+            </div> -->
+            <button type="submit" class="btn btn-primary" style="background-color: #4e73df; border: none; border-radius: 5px;">지점 추가하기</button>
+        </form>
+    </div>
+    <!-- 지점 추가 부분 -->
+
+    <h2 style="font-size: 24px; color: #333; padding-top: 10px;">저장된 지점 목록</h2>
+    <div class="card" style="padding: 20px;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>지점 이름</th>
+                    <th>동작</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for branch in branches %}
+                <tr>
+                    <td>{{ branch.id }}</td>
+                    <td id="name_{{ branch.id }}">{{ branch.name }}</td>
+                    <!-- <td id="email_{{ branch.id }}">{{ branch.email }}</td> -->
+                    <td id="action_{{ branch.id }}" style="white-space: nowrap;">
+                        <button onclick="editBranch({{ branch.id }})" class="btn btn-warning btn-sm" style="margin-right: 5px;">수정</button>
+                        <!-- 삭제 버튼은 폼을 사용하여 구현, 실제 구현에서 CSRF 보호를 고려해야 함 -->
+                        <form method="post" style="display: inline;">
+                            <input type="hidden" name="delete" value="{{ branch.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <!-- 페이징 네비게이션 -->
+        <nav aria-label="Page navigation example" style="margin-top: 20px;">
+            <ul class="pagination justify-content-center">
+                {% set start_page = page - 2 if page - 2 > 0 else 1 %}
+                {% set end_page = start_page + 4 if start_page + 4 <= total_pages else total_pages %}
+                
+                {% if page > 1 %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('branches.branches', sort=current_sort, page=page-1) }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for i in range(start_page, end_page + 1) %}
+                    <li class="page-item {% if i == page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('branches.branches', sort=current_sort, page=i) }}">{{ i }}</a>
+                    </li>
+                {% endfor %}
+                
+                {% if page < total_pages %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('branches.branches', sort=current_sort, page=page+1) }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="/static/js/branches.js"></script>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}제품 페이지{% endblock %}
+
+{% block content %}
+<div class="container" style="min-height: 100vh; padding-top: 80px; padding-bottom: 30px;">
+    <h1 style="font-size: 24px; color: #333;">꽃 품목 추가</h1>
+    
+    <!-- 카드 시작 -->
+    <div class="card" style="background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; padding: 20px;">
+        <form method="post">
+            <div class="form-group">
+                <label for="product_name" style="color: #333;">품목명</label>
+                <input type="text" class="form-control" id="product_name" name="product_name" required>
+            </div>
+            <div class="form-group">
+                <label for="bud_type" style="color: #333;">종류</label>
+                <input type="text" class="form-control" id="bud_type" name="bud_type" required>
+            </div>
+            <div class="form-group">
+                <label for="options" style="color: #333;">색상</label>
+                <input type="text" class="form-control" id="options" name="options" placeholder="콤마로 구분 예:노랑, 파랑, 빨강" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="background-color: #4e73df; border: none; border-radius: 5px;">품목추가하기</button>
+        </form>
+    </div>
+    <!-- 카드 끝 -->
+
+    <!-- 검색 필터 및 저장된 품목 헤더 -->
+    <div class="d-flex flex-row align-items-center" style="margin-bottom: 20px;">
+        <!-- '저장된 품목' 텍스트 -->
+        <div class="flex-grow-1">
+            <h2 style="font-size: 24px; color: #333; padding-top: 10px; margin-bottom: 0;">저장된 품목</h2>
+        </div>
+        <!-- 검색 창과 버튼 컨테이너 -->
+        <div class="flex-grow-1 d-flex flex-row justify-content-end">
+            <form method="get" class="form-inline" style="width: 100%;">
+                <div class="input-group input-group-sm" style="flex-grow: 1;">
+                    <input type="text" class="form-control" id="filter" name="filter" placeholder="품목명으로 검색..." style="flex-grow: 1;">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">검색</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card" style="background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px;">
+        <table class="table" style="color: #666;">
+            <thead style="color: #555; border-bottom: 2px solid #eee;">
+                <tr>
+                    <th>ID</th>
+                    <th><a href="javascript:void(0)" onclick="toggleSortOrder('name')">Name</a></th>
+                    <th><a href="javascript:void(0)" onclick="toggleSortOrder('color')">Color</a></th>
+                    <th><a href="javascript:void(0)" onclick="toggleSortOrder('bud_type')">bud Type</a></th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr id="row_{{ product['id'] }}">
+                    <td>{{ product['id'] }}</td>
+                    <td id="name_{{ product['id'] }}">{{ product['name'] }}</td>
+                    <td id="color_{{ product['id'] }}">{{ product['color'] }}</td>
+                    <td id="bud_type_{{ product['id'] }}">{{ product['bud_type'] }}</td>
+                    <td id="action_{{ product['id'] }}" class="d-flex justify-content-center">
+                        <button onclick="editProduct({{ product['id'] }})" class="btn btn-warning btn-sm" style="margin-right: 5px;">수정</button>
+                        <form method="post" style="display: inline;">
+                            <input type="hidden" name="delete" value="{{ product['id'] }}">
+                            <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <nav aria-label="Page navigation example" style="margin-top: 20px;">
+            <ul class="pagination justify-content-center">
+                {% set start_page = page - 2 if page - 2 > 0 else 1 %}
+                {% set end_page = start_page + 4 if start_page + 4 <= total_pages else total_pages %}
+                
+                {% if page > 1 %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('products.products', sort=current_sort, page=page-1) }}">&laquo;</a></li>
+                {% endif %}
+                
+                {% for i in range(start_page, end_page + 1) %}
+                    <li class="page-item {% if i == page %}active{% endif %}"><a class="page-link" href="{{ url_for('products.products', sort=current_sort, page=i) }}">{{ i }}</a></li>
+                {% endfor %}
+                
+                {% if page < total_pages %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('products.products', sort=current_sort, page=page+1) }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div> 
+    <!-- 카드 끝 -->
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="/static/js/products.js"></script>
+{% endblock %}

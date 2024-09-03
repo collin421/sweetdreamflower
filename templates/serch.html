@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Info</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>Search Orders</h2>
+        <label for="orderDate">Order Date:</label>
+        <input type="date" id="orderDate" required>
+        
+        <label for="branchId">Branch ID:</label>
+        <input type="number" id="branchId" required>
+        
+        <button onclick="searchOrders()">Search</button>
+        
+        <div id="orderResults">
+            <!-- 주문 결과가 여기에 표시됩니다 -->
+        </div>
+    </div>
+
+    <script>
+    function searchOrders() {
+        var orderDate = $('#orderDate').val();
+        var branchId = $('#branchId').val();
+
+        $.ajax({
+            url: '/search_orders',
+            data: { 'order_date': orderDate, 'branch_id': branchId },
+            type: 'GET',
+            success: function(response) {
+                $('#orderResults').html(response);
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    }
+    </script>
+</body>
+</html>

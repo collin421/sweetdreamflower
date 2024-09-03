@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}제품 페이지{% endblock %}
+
+{% block content %}
+<div class="container" style="min-height: 100vh; padding-top: 80px; padding-bottom: 30px; background-color: #f8f9fa;">
+    <h2 style="font-size: 24px; color: #333; padding-bottom: 10px;">모든 주문 내역 조회</h2>
+    <!-- 조회 폼 -->
+    <form id="orderForm" action="/all_orders" method="post">
+        <div class="form-group">
+            <label for="order_date" style="color: #333;">날짜 선택:</label>
+            <input type="date" class="form-control" id="order_date" name="order_date" value="{{ selected_date }}" required style="border-radius: 5px;">
+        </div>
+        <!-- 지점별 조회 버튼 -->
+        <button type="submit" class="btn btn-primary" style="background-color: #4e73df; border: none; border-radius: 5px;">지점별 조회하기</button>
+        <!-- 꽃봉오리 타입별 조회 버튼 -->
+        <button type="button" class="btn btn-secondary" id="viewByBudTypeBtn" style="background-color: #6c757d; border: none; border-radius: 5px;">종류별 조회하기</button>
+    </form>
+
+    <!-- 지점별 주문 내역 -->
+    {% if orders_by_branch %}
+        <div class="row mt-4">
+            {% for branch_name, orders in orders_by_branch.items() %}
+                <div class="col-lg-6 col-md-12">
+                    <div class="card mb-4" style="background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                        <div class="card-header" style="background-color: #e2eaff;">
+                            <h4 style="font-size: 16px; font-weight: bold; color: #4e73df;">{{ branch_name }}</h4>
+                        </div>
+                        <div class="card-body">
+                            <table class="table" style="font-size: 14px;">
+                                <thead>
+                                    <tr>
+                                        <th style="color: #555;">꽃봉오리 종류</th>
+                                        <th style="color: #555;">품목 이름</th>
+                                        <th style="color: #555;">색상</th>
+                                        <th style="color: #555;">수량</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% set last_bud_type = None %}
+                                    {% set last_product_name = None %}
+                                    {% for order in orders %}
+                                        <tr style="font-size: 14px;">
+                                            {% if order.bud_type != last_bud_type %}
+                                                <td>{{ order.bud_type }}</td>
+                                                {% set last_bud_type = order.bud_type %}
+                                            {% else %}
+                                                <td></td>
+                                            {% endif %}
+                                            {% if order.product_name != last_product_name %}
+                                                <td>{{ order.product_name }}</td>
+                                                {% set last_product_name = order.product_name %}
+                                            {% else %}
+                                                <td></td>
+                                            {% endif %}
+                                            <td>{{ order.color }}</td>
+                                            <td>{{ order.total_quantity }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <!-- 스페셜 노트 표시 -->
+                            {% if orders[0].special_note %}
+                                <div class="special-note mt-3" style="background-color: #e9ecef; padding: 10px; border-radius: 5px;">
+                                    <h5 style="font-size: 16px; font-weight: bold; color: #4e73df;">스페셜 노트</h5>
+                                    <p style="font-size: 14px; color: #555;">{{ orders[0].special_note }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <!-- 엑셀 다운로드 폼 -->
+        <form action="/download_all_orders" method="post" class="mt-3">
+            <input type="hidden" name="order_date" value="{{ selected_date }}">
+            <button type="submit" class="btn btn-success" style="background-color: #1cc88a; border: none; border-radius: 5px;">엑셀로 다운로드</button>
+        </form>
+    {% endif %}
+
+    <!-- 꽃봉오리 타입별 주문 내역 -->
+    {% if orders_by_bud_type %}
+        <div class="row mt-4">
+            {% for bud_type, products in orders_by_bud_type.items() %}
+                <div class="col-lg-12 col-md-12">
+                    <div class="card mb-4" style="background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                        <div class="card-header" style="background-color: #e2eaff;">
+                            <h4 style="font-size: 18px; font-weight: bold; color: #4e73df;">꽃봉오리 타입: {{ bud_type }}</h4>
+                        </div>
+                        <div class="card-body">
+                            {% for product_name, orders in products.items() %}
+                                <h5 style="font-size: 16px; font-weight: bold; color: #4e73df;">{{ product_name }}</h5>
+                                <table class="table" style="font-size: 14px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="color: #555;">지점 이름</th>
+                                            <th style="color: #555;">수량</th>
+                                            <th style="color: #555;">메모</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order in orders %}
+                                            <tr style="font-size: 14px;">
+                                                <td>{{ order.branch_name }}</td>
+                                                <td>{{ order.total_quantity }}</td>
+                                                <td>
+                                                    {% if order.special_note %}
+                                                        <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#noteModal" data-note="{{ order.special_note }}">메모 보기</button>
+                                                    {% else %}
+                                                        없음
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <p style="font-weight: bold; color: #4e73df;">{{ product_name }} 합계: {{ product_totals[(bud_type, product_name)] }}</p>
+                                <hr>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <!-- 엑셀 다운로드 폼 -->
+        <form action="/download_all_orders_by_bud_type" method="post" class="mt-3">
+            <input type="hidden" name="order_date" value="{{ selected_date }}">
+            <button type="submit" class="btn btn-success" style="background-color: #1cc88a; border: none; border-radius: 5px;">엑셀로 다운로드</button>
+        </form>
+    {% endif %}
+</div>
+
+<!-- 메모 팝업 모달 -->
+<div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="noteModalLabel">메모 내용</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="fullNoteContent"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    // 꽃봉오리 타입별 조회 버튼 클릭 시 폼 액션 변경 및 폼 제출
+    document.getElementById('viewByBudTypeBtn').addEventListener('click', function() {
+        const form = document.getElementById('orderForm');
+        form.action = '/all_orders_by_bud_type';
+        form.submit();
+    });
+
+    // 메모 내용 모달에 표시
+    $('#noteModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var note = button.data('note');
+        var modal = $(this);
+        modal.find('.modal-body #fullNoteContent').text(note);
+    });
+</script>
+{% endblock %}

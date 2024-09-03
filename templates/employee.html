@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flower Dream - employee index</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        html {
+            height: 100%;
+        }
+        body {
+            margin: 0;
+            height: 100%;
+            background-image: url("{{ url_for('static', filename='images/index_bg_image.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: rgb(255, 255, 255);
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+        .container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        .centered-content {
+            text-align: center;
+            margin-bottom: 20px; /* 요소 간 간격 추가 */
+        }
+        .btn-admin {
+            border: 2px solid #ffffff;
+            background-color: transparent;
+            color: #ffffff;
+            transition: all 0.3s ease-in-out;
+            width: 200px; /* 기본 버튼 너비 */
+            padding: 15px 30px; /* 기본 패딩 */
+            font-size: 18px; /* 기본 폰트 크기 */
+            margin: 10px; /* 버튼 간 간격 추가 */
+        }
+        .btn-admin:hover {
+            background-color: #ffffff;
+            color: rgb(26, 26, 26);
+        }
+        @media (max-width: 768px) {
+            .centered-content {
+                font-size: 30px;
+            }
+            .btn-admin {
+                width: 250px; /* 모바일 환경에서 버튼 너비 증가 */
+                padding: 20px 40px; /* 모바일 환경에서 패딩 증가 */
+                font-size: 22px; /* 모바일 환경에서 폰트 크기 증가 */
+                margin-top: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="centered-content">
+            <img src="/static/images/logo_white.png" alt="flower dream" style="height: 70px;">
+        </div>
+        <div class="centered-content">
+            <a href="/order" class="btn btn-admin">주문 요청</a>
+            <a href="/sales" class="btn btn-admin">매출 입력</a>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

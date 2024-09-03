@@ -1,0 +1,18 @@
+.table-responsive {
+    overflow: auto;
+}
+
+#salesTable {
+    width: 100%;
+}
+
+#salesTable thead th {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 2;
+}
+
+#salesTable tbody th, #salesTable tbody td {
+    white-space: nowrap;
+}

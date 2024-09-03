@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구매 기록 조회</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>구매 기록 조회</h2>
+        <form action="/purchase_records" method="post">
+            <!-- 날짜 선택 필드: 이전에 선택한 날짜가 유지되도록 value 속성에 selected_date 변수의 값을 할당합니다. -->
+            <div class="form-group">
+                <label for="order_date">날짜 선택:</label>
+                <input type="date" class="form-control" id="order_date" name="order_date" required value="{{ selected_date }}">
+            </div>
+            <!-- 지점 선택 필드: 이전에 선택한 지점이 유지되도록 option 태그에 selected 속성을 동적으로 추가합니다. -->
+            <div class="form-group">
+                <label for="branch_id">지점 선택:</label>
+                <select class="form-control" id="branch_id" name="branch_id" required>
+                    <option value="">지점을 선택해주세요...</option>
+                    {% for branch in branches %}
+                    <option value="{{ branch.id }}" {% if branch.id == selected_branch_id %}selected{% endif %}>{{ branch.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">조회하기</button>
+        </form>
+        
+        {% if purchase_details %}
+        <div class="mt-5">
+            <h3>조회 결과</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>날짜</th>
+                        <th>지점 이름</th>
+                        <th>품목 이름</th>
+                        <th>색상</th>
+                        <th>수량</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detail in purchase_details %}
+                    <tr>
+                        <td>{{ detail.order_date }}</td>
+                        <td>{{ detail.branch_name }}</td>
+                        <td>{{ detail.product_name }}</td>
+                        <td>{{ detail.color }}</td>
+                        <td>{{ detail.quantity }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        <form action="/download_purchase_records" method="post">
+            <input type="hidden" name="order_date" value="{{ selected_date }}">
+            <input type="hidden" name="branch_id" value="{{ selected_branch_id }}">
+            <button type="submit" class="btn btn-success">엑셀로 다운로드</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

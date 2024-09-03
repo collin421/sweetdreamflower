@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}매출 대시보드{% endblock %}
+
+{% block content %}
+<div class="container" style="min-height: 100vh; padding-top: 80px; padding-bottom: 30px; font-size: 14px;">
+    <h1 style="font-size: 24px; color: #333;">매출 대시보드</h1>
+
+    <!-- 연도 선택 버튼 -->
+    <form method="post" action="/dashboard" class="form-inline mb-4">
+        <label for="year" class="mr-2">연도 선택:</label>
+        <select name="year" id="year" class="form-control">
+            {% for year in range(current_year-5, current_year+1) %}
+                <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary ml-2">조회</button>
+    </form>
+
+    <!-- Handsontable 컨테이너 -->
+    <div id="salesTable" class="table-responsive"></div>
+    
+    <!-- 엑셀 다운로드 버튼 -->
+    <form action="{{ url_for('dashboard.download_sales_csv') }}" method="get" class="mb-3">
+        <button type="submit" class="btn btn-success" style="margin-top: 10px; font-size: 14px;">엑셀로 다운로드</button>
+    </form>
+
+    <!-- 매출 변화 추이 차트 -->
+    <div style="margin-top: 50px;">
+        <canvas id="salesChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('salesTable');
+        const data = [
+            ['지점', '구분', {% for date in dates %}'{{ date.strftime('%Y-%m-%d') }}',{% endfor %}],
+            {% for branch in branches %}
+            ['{{ branch }}', '합계', {% for date in dates %}{{ sales_by_branch[branch][date]['total_sales'] }},{% endfor %}],
+            ['', '카드-스위트드림', {% for date in dates %}{{ sales_by_branch[branch][date]['sales_card_sweetdream'] }},{% endfor %}],
+            // ['', '카드-글로리', {% for date in dates %}{{ sales_by_branch[branch][date]['sales_card_glory'] }},{% endfor %}],
+            ['', '현금', {% for date in dates %}{{ sales_by_branch[branch][date]['sales_cash'] }},{% endfor %}],
+            ['', '제로페이', {% for date in dates %}{{ sales_by_branch[branch][date]['sales_zeropay'] }},{% endfor %}],
+            ['', '계좌이체', {% for date in dates %}{{ sales_by_branch[branch][date]['sales_transfer'] }},{% endfor %}],
+            {% endfor %}
+        ];
+
+        let hot;
+
+        function initializeTable() {
+            hot = new Handsontable(container, {
+                data: data,
+                rowHeaders: false,
+                colHeaders: false,
+                fixedColumnsStart: 2,
+                fixedRowsTop: 1,
+                width: '100%',
+                height: calculateTableHeight(),
+                colWidths: function(index) {
+                    return index < 2 ? 120 : 90;
+                },
+                stretchH: 'all',
+                licenseKey: 'non-commercial-and-evaluation',
+                cells: function(row, col, prop) {
+                    const cellProperties = {};
+                    
+                    if (row === 0) {
+                        // 첫 번째 행 스타일링 (헤더)
+                        cellProperties.renderer = function(instance, td, row, col, prop, value, cellProperties) {
+                            Handsontable.renderers.TextRenderer.apply(this, arguments);
+                            td.style.background = '#f0f0f0';
+                            td.style.fontWeight = 'bold';
+                        };
+                    } else {
+                        if (col === 0) {
+                            // 첫 번째 열 스타일링
+                            cellProperties.renderer = function(instance, td, row, col, prop, value, cellProperties) {
+                                Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                td.style.background = '#f0f0f0';
+                                td.style.fontWeight = 'bold';
+                            };
+                        } else if (col === 1) {
+                            // 두 번째 열 스타일링
+                            cellProperties.renderer = function(instance, td, row, col, prop, value, cellProperties) {
+                                Handsontable.renderers.TextRenderer.apply(this, arguments);
+                                td.style.background = value === '합계' ? '#ffffc0' : '#f0f0f0';
+                                td.style.fontWeight = 'bold';
+                            };
+                        } else if (data[row][1] === '합계') {
+                            // '합계' 행 스타일링 및 숫자 포맷팅 (3열부터)
+                            cellProperties.renderer = function(instance, td, row, col, prop, value, cellProperties) {
+                                Handsontable.renderers.NumericRenderer.apply(this, arguments);
+                                td.style.background = '#ffffc0';
+                                td.style.fontWeight = 'bold';
+                            };
+                            cellProperties.type = 'numeric';
+                            cellProperties.numericFormat = {
+                                pattern: '0,0',
+                                culture: 'ko-KR'
+                            };
+                        }
+                    }
+                    
+                    // 숫자 데이터 포맷팅 (3열부터, '합계' 행 제외)
+                    if (col > 1 && row > 0 && data[row][1] !== '합계') {
+                        cellProperties.type = 'numeric';
+                        cellProperties.numericFormat = {
+                            pattern: '0,0',
+                            culture: 'ko-KR'
+                        };
+                    }
+                    
+                    return cellProperties;
+                },
+            });
+
+            // 현재 날짜로 스크롤
+            scrollToCurrentDate();
+        }
+
+        function calculateTableHeight() {
+            const windowHeight = window.innerHeight;
+            const tableTop = container.getBoundingClientRect().top;
+            const minHeight = 400; // 최소 높이 설정
+            return Math.max(windowHeight - tableTop - 100, minHeight); // 100px는 여유 공간
+        }
+
+        function updateTableHeight() {
+            hot.updateSettings({
+                height: calculateTableHeight()
+            });
+        }
+
+        function scrollToCurrentDate() {
+            const today = '{{ today.strftime('%Y-%m-%d') }}';
+            const headerRow = data[0];
+            const todayIndex = headerRow.indexOf(today);
+
+            if (todayIndex > -1) {
+                // 2는 고정 열 수, 3은 현재 날짜 열을 중앙에 배치하기 위한 오프셋
+                hot.scrollViewportTo(0, Math.max(0, todayIndex - 2 - 3));
+            }
+        }
+
+        initializeTable();
+
+        window.addEventListener('resize', updateTableHeight);
+
+        // 차트 생성
+        const labels = [{% for date in dates %}'{{ date.strftime('%Y-%m-%d') }}',{% endfor %}];
+        const salesData = [{% for date in dates %}{{ total_sales_by_date[date] }},{% endfor %}];
+
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '총 매출',
+                    data: salesData,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: '날짜'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: '매출'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

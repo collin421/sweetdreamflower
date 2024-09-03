@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}주간 주문 통계{% endblock %}
+
+{% block content %}
+<div class="container" style="min-height: 100vh; padding-top: 80px; padding-bottom: 30px; background-color: #f8f9fa;">
+    <h2 style="font-size: 24px; color: #333;">주간 주문 통계</h2>
+    
+    <!-- 버튼 추가 -->
+    <div class="row mt-4">
+        <div class="col-12 mb-3">
+            <button id="weekly-button" class="btn btn-primary">주간</button>
+            <button id="monthly-button" class="btn btn-primary">월간</button>
+            <button id="yearly-button" class="btn btn-primary">연간</button>
+        </div>
+        <div class="col-12">
+            <div id="chart_div" style="width: 100%; height: 500px;"></div>
+        </div>
+    </div>
+
+    <!-- 데이터 테이블 영역 -->
+    <div class="row">
+        <div class="col-lg-6">
+            <h3>이번 주</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>요일</th>
+                        <th>주문 건수</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for day, count in this_week_stats.items() %}
+                    <tr>
+                        <td>{{ day_translations[day] }}</td>
+                        <td>{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-lg-6">
+            <h3>지난 주</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>요일</th>
+                        <th>주문 건수</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for day, count in last_week_stats.items() %}
+                    <tr>
+                        <td>{{ day_translations[day] }}</td>
+                        <td>{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Google Charts 로딩 및 차트 설정 -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart', 'bar']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+                ['Day', '이번주', { role: 'annotation' }, '지난주', { role: 'annotation' }],
+                {% for day, count in this_week_stats.items() %}
+                ['{{ day_translations[day] }}', {{ count }}, '{{ count }}', {{ last_week_stats[day]|default(0) }}, '{{ last_week_stats[day]|default(0) }}'],
+                {% endfor %}
+            ]);
+
+            var maxOrder = 0;
+            {% for count in this_week_stats.values() %}
+            if ({{ count }} > maxOrder) {
+                maxOrder = {{ count }};
+            }
+            {% endfor %}
+            {% for count in last_week_stats.values() %}
+            if ({{ count }} > maxOrder) {
+                maxOrder = {{ count }};
+            }
+            {% endfor %}
+            var maxYValue = maxOrder + (maxOrder * 0.2); // 최대값에 20% 추가 공간 확보
+
+            var options = {
+                title: '주간 주문 건수 비교',
+                width: '100%',
+                height: 500,
+                bar: {groupWidth: "100%"},
+                legend: { position: 'top', alignment: 'center' },
+                hAxis: {
+                    title: 'Day',
+                },
+                vAxis: {
+                    maxValue: maxYValue // 동적으로 설정된 Y축 최대값
+                },
+                annotations: {
+                    alwaysOutside: true, // 이를 false로 설정하여 내부에 표시할 수도 있습니다
+                    textStyle: {
+                        fontSize: 12,
+                        bold: true,
+                        color: '#000'
+                    },
+                    stem: {
+                        length: 4,
+                        color: '#000'
+                    },
+                    boxStyle: {
+                        stroke: '#888', // 테두리 색
+                        strokeWidth: 1, // 테두리 두께
+                        rx: 10, // 모서리 둥글기
+                        ry: 10, // 모서리 둥글기
+                        gradient: { // 그라데이션 효과
+                            color1: '#fbf6a7', 
+                            color2: '#33b679',
+                            x1: '0%', y1: '0%',
+                            x2: '100%', y2: '100%',
+                            useObjectBoundingBoxUnits: true
+                        }
+                    }
+                },
+                colors: ['#1b9e77', '#d95f02']
+            };
+
+            var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+            window.onresize = function() {
+                chart.draw(data, options);
+            };
+        }
+        // 페이지 이동 버튼 설정
+        document.getElementById('monthly-button').onclick = function() {
+            window.location.href = `/data/monthly`;
+        };
+        document.getElementById('yearly-button').onclick = function() {
+            window.location.href = `/data/yearly`;
+        };
+        document.getElementById('weekly-button').onclick = function() {
+            window.location.href = `/data`;
+        };
+    </script>
+</div>
+{% endblock %}

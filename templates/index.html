@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flower Dream - Main Page</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        html {
+            height: 100%;
+        }
+        body {
+            margin: 0;
+            height: 100%;
+            background-image: url("{{ url_for('static', filename='images/index_bg_image.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: rgb(255, 255, 255);
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6); /* 검은색 반투명 레이어 */
+        }
+        .container {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            flex-direction: column; /* 세로 정렬을 위해 flex-direction 설정 */
+        }
+        .centered-content {
+            text-align: center;
+        }
+        .btn-admin {
+            border: 2px solid #ffffff; /* 버튼 테두리 색상 */
+            background-color: transparent; /* 투명 배경 */
+            color: #ffffff; /* 버튼 텍스트 색상 */
+            transition: all 0.3s ease-in-out;
+            margin-top: 20px; /* 버튼과 로고 사이 간격 */
+        }
+        .btn-admin:hover {
+            background-color: #ffffff; /* 마우스 오버 시 배경 색상 */
+            color: rgb(26, 26, 26); /* 마우스 오버 시 텍스트 색상 */
+        }
+        @media (max-width: 768px) {
+            .centered-content {
+                font-size: 30px;
+            }
+            .btn-admin {
+                width: 100%;
+                margin-top: 30px; /* 모바일 환경에서 버튼을 더 아래로 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="centered-content">
+            <img src="/static/images/logo_white.png" alt="flower dream" style="height: 70px;">
+        </div>
+        <div>
+            <a href="/products" class="btn btn-admin">Admin Page</a>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

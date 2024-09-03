@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}지점별 매출 조회 및 수정{% endblock %}
+
+{% block content %}
+<div class="container" style="min-height: 100vh; padding-top: 80px; padding-bottom: 30px; background-color: #f8f9fa;">
+    <h2 style="font-size: 24px; color: #333; padding-bottom: 10px;">지점별 매출 조회 및 수정</h2>
+    <form action="/branch_sales" method="post">
+        <div class="form-group">
+            <label for="sale_date" style="color: #333;">날짜 선택:</label>
+            <input type="date" class="form-control" id="sale_date" name="sale_date" value="{{ selected_date }}" required style="border-radius: 5px;">
+        </div>
+        <div class="form-group">
+            <label for="branch_id" style="color: #333;">지점 선택:</label>
+            <select class="form-control" id="branch_id" name="branch_id" required style="border-radius: 5px;">
+                <option value="">지점을 선택하세요</option>
+                <option value="all">전체 지점</option>
+                {% for branch in branches %}
+                <option value="{{ branch['id'] }}" {% if selected_branch_id == branch['id'] %}selected{% endif %}>{{ branch['name'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="background-color: #4e73df; border: none; border-radius: 5px;">조회하기</button>
+    </form>
+
+    {% if sales %}
+    <div class="table-responsive mt-4">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>날짜</th>
+                    <th>지점명</th>
+                    <th>카드(스위트드림)</th>
+                    <th>카드(글로리)</th>
+                    <th>현금</th>
+                    <th>제로페이</th>
+                    <th>계좌이체</th>
+                    <th>수정</th>
+                    <th>삭제</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in sales %}
+                <tr>
+                    <td>{{ sale['sale_date'] }}</td>
+                    <td>{{ branches_dict[sale['branch_id']] }}</td>
+                    <td><input type="number" class="form-control sales-input" data-sale-id="{{ sale['id'] }}" data-field="sales_card_sweetdream" value="{{ sale['sales_card_sweetdream'] }}" /></td>
+                    <td><input type="number" class="form-control sales-input" data-sale-id="{{ sale['id'] }}" data-field="sales_card_glory" value="{{ sale['sales_card_glory'] }}" /></td>
+                    <td><input type="number" class="form-control sales-input" data-sale-id="{{ sale['id'] }}" data-field="sales_cash" value="{{ sale['sales_cash'] }}" /></td>
+                    <td><input type="number" class="form-control sales-input" data-sale-id="{{ sale['id'] }}" data-field="sales_zeropay" value="{{ sale['sales_zeropay'] }}" /></td>
+                    <td><input type="number" class="form-control sales-input" data-sale-id="{{ sale['id'] }}" data-field="sales_transfer" value="{{ sale['sales_transfer'] }}" /></td>
+                    <td><button class="btn btn-info update-sale" data-sale-id="{{ sale['id'] }}" disabled>저장</button></td>
+                    <td><button class="btn btn-danger delete-sale" data-sale-id="{{ sale['id'] }}">삭제</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-center" style="font-size: 16px; color: #333; padding-top: 20px;">매출 내역이 없습니다.</p>
+    {% endif %}
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="/static/js/branch_sales.js"></script>
+{% endblock %}

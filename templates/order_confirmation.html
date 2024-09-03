@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">주문 확인</h2>
+        {% if order %}
+            <div class="card">
+                <div class="card-header">
+                    주문 ID: {{ order.id }}
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">고객 이름: {{ order.author }}</h5>
+                    <p class="card-text">지점 이름: {{ branch_name }}</p>
+                    <p class="card-text">주문 날짜: {{ order.order_date }}</p>
+                    <p class="card-text">특별 지시 사항: {{ order.special_note }}</p>
+                    <p class="card-text">주문 코드: {{ order.order_code }}</p>
+
+                    <h5 class="mt-4">주문 상세 내역:</h5>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>품목 이름</th>
+                                <th>색상</th>
+                                <th>수량</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detail in order_details %}
+                            <tr>
+                                <td>{{ detail.product_name }}</td>
+                                <td>{{ detail.color }}</td>
+                                <td>{{ detail.quantity }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <!-- <a href="{{ url_for('all_orders.all_orders') }}" class="btn btn-primary">모든 주문 보기</a> -->
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-warning" role="alert">
+                주문 정보를 찾을 수 없습니다.
+            </div>
+        {% endif %}
+        <button id="orderSubmitButton" type="button" class="btn btn-primary mb-3 btn-block order-submit-button">주문 확인 완료</button>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // 자바스크립트 코드: 버튼 클릭 시 /employee 페이지로 이동
+        document.getElementById('orderSubmitButton').addEventListener('click', function() {
+            window.location.href = "{{ url_for('employee.employee') }}";
+        });
+    </script>
+</body>
+</html>

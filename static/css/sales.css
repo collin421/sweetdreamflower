@@ -1,0 +1,75 @@
+/* 기존 사이트 스타일을 기반으로 한 매출 입력 페이지 CSS */
+body {
+    background-color: #f8f9fa !important;
+    font-size: 0.9rem !important;
+}
+
+.container {
+    padding-bottom: 0.5rem !important;
+}
+
+h2, h3 {
+    margin-bottom: 1.5rem !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+.form-control {
+    margin-bottom: 10px !important;
+}
+
+.card {
+    background-color: #ffffff !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1) !important;
+    margin-bottom: 20px !important;
+    padding: 20px !important;
+}
+
+.form-group label {
+    color: #333 !important;
+    font-weight: bold !important;
+}
+
+#submitSalesButton {
+    width: 100%; /* 버튼의 넓이를 전체 컨테이너의 넓이로 설정 */
+}
+
+.button-container, .btn-submit-sales {
+    display: flex;
+    justify-content: flex-end; /* 우측 정렬 */
+    width: 100%; /* 전체 너비 */
+}
+
+.btn-submit-sales {
+    background-color: #4CAF50 !important; /* 버튼 색상 */
+    color: white !important; /* 텍스트 색상 */
+    font-size: 1rem !important; /* 폰트 사이즈 */
+    padding: 10px 24px !important; /* 패딩 */
+    border: none !important; /* 테두리 제거 */
+    border-radius: 5px !important; /* 둥근 모서리 */
+    cursor: pointer; /* 커서 스타일 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important; /* 그림자 효과 */
+}
+
+.btn-submit-sales:hover {
+    background-color: #45a049 !important; /* 호버 시 색상 변경 */
+}
+
+/* 입력 필드 포커스 및 비활성화 상태 스타일 */
+.form-control:focus {
+    border-color: #80bdff !important;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25) !important;
+}
+
+.btn.disabled, .btn:disabled {
+    background-color: rgb(207, 207, 207) !important;
+    color: #575757 !important;
+    border-color: rgb(207, 207, 207) !important;
+}
+
+#emailSelect, #branchSelect {
+    color: #495057 !important; /* 선택된 항목의 색상 */
+    font-weight: normal !important;
+}

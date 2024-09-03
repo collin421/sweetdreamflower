@@ -1,0 +1,93 @@
+/* body background color */
+body {
+    background-color: #f8f9fa !important;
+    font-size: 0.9rem !important;
+}
+
+.container {
+    padding-bottom: 0.5rem !important;
+}
+
+#order-header {
+    display: flex !important;
+    align-items: center !important; /* 요소들을 수직 중앙 정렬 */
+}
+
+.material-icons {
+    vertical-align: middle !important; /* 수직 중앙 정렬을 더 세밀하게 조정 */
+}
+
+h3 {
+    margin-bottom: 1.5rem !important;
+    display: inline-block !important;
+    vertical-align: middle !important; /* 수직 중앙 정렬을 더 세밀하게 조정 */
+}
+
+.form-control {
+    margin-bottom: 10px !important;
+}
+
+h1 {
+    color: #333 !important;
+    margin-bottom: 20px !important;
+}
+
+.card, .orderItem {
+    background-color: #ffffff !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1) !important;
+    margin-bottom: 20px !important;
+    padding: 20px !important;
+}
+
+.form-group label {
+    color: #333 !important;
+    font-weight: bold !important;
+}
+
+/* 우측 정렬을 위한 컨테이너 스타일 */
+.button-container {
+    display: flex;
+    justify-content: flex-end; /* 우측 정렬 */
+    width: 100%; /* 전체 너비 */
+}
+
+.custom-btn {
+    width: 100px  !important;
+    height: 40px !important; /* 높이를 명시적으로 지정할 수도 있음 */
+    align-items: center; /* 세로 중앙 정렬 */
+    background-color: #ffffff !important; /* 흰색 배경 */
+    color: black; /* 글자 색상 */
+    width: 40px; /* 너비 설정 */
+    height: 40px; /* 높이 설정 */
+    border-radius: 5px; /* 모서리 라운드 처리 */
+    display: inline-flex; /* inline-flex로 설정 */
+    justify-content: center; /* 가운데 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    margin-left: 10px; /* 좌측 여백 */
+    font-size: 1.8rem; /* 폰트 사이즈 조정 */
+    font-weight: bold; /* 글씨 볼드 처리 */
+    box-shadow: 0 2px 4px rgba(0,0,0,.1) !important;
+}
+
+.item-card {
+    background-color: #eeeeee !important;
+    border: 1px solid #ccc !important;
+    border-radius: 5px !important;
+    padding: 15px !important;
+    margin-bottom: 10px !important;
+}
+
+.btn.disabled, .btn:disabled {
+    background-color: rgb(207, 207, 207) !important;
+    font-size: 1.1rem !important; /* 폰트 사이즈 조정 */
+    font-weight: medium !important; /* 글씨 볼드 처리 */
+    color: #575757 !important;
+    padding: 13px !important;
+    border-color: rgb(207, 207, 207) !important;
+}
+
+#emailSelect, #branchSelect {
+    color: rgb(184, 184, 184) !important; /* 원하는 색상 코드로 변경하세요 */
+    font-size: bold !important;
+}
